@@ -1,0 +1,463 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>SwasthyaAI</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow reading column, five-step rail on top that mirrors the deck's workflow. Boldness lives in the rules-audit cards (step 3); everything else stays quiet. */
+:root{
+  --bg:#f4f8f9; --surface:#ffffff; --ink:#12263a; --muted:#51657a; --line:#d3dfe5;
+  --accent:#0b7a75; --accent-ink:#ffffff; --accent-soft:#e0f1ef;
+  --warn:#8a5200; --warn-bg:#fff2d9; --crit:#a8231b; --crit-bg:#fde7e4; --idle-bg:#eaf0f3;
+  --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --body:'Figtree','Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1721; --surface:#132431; --ink:#e5eef4; --muted:#9fb3c3; --line:#27394a;
+    --accent:#3cc0b6; --accent-ink:#06201e; --accent-soft:#103439;
+    --warn:#f2b862; --warn-bg:#34290f; --crit:#ff9d93; --crit-bg:#3b1815; --idle-bg:#1b2e3c; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b1721; --surface:#132431; --ink:#e5eef4; --muted:#9fb3c3; --line:#27394a;
+  --accent:#3cc0b6; --accent-ink:#06201e; --accent-soft:#103439;
+  --warn:#f2b862; --warn-bg:#34290f; --crit:#ff9d93; --crit-bg:#3b1815; --idle-bg:#1b2e3c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:760px;margin-inline:auto}
+h1,h2,h3{font-family:var(--display);line-height:1.2;text-wrap:balance;margin:0}
+h2{font-size:1.65rem;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.1rem;font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-block:18px 8px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:1.25rem}
+.pill{font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--warn);background:var(--warn-bg);padding:4px 10px;border-radius:999px}
+.safety{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--muted);border-block:1px solid var(--line);padding-block:10px;margin-block:8px 18px}
+.safety b{color:var(--ink)}
+ol.rail{list-style:none;margin:0 0 22px;padding:0;display:flex;gap:6px}
+.rail li{flex:1;min-width:0}
+.rail button{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;width:100%;cursor:pointer;padding:8px 6px;border-bottom:3px solid var(--line);font-size:.85rem;font-weight:600;color:var(--muted)}
+.rail button[disabled]{cursor:default;opacity:.55}
+.rail .n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--idle-bg);font-size:.78rem}
+.rail button[aria-current="step"]{border-color:var(--accent);color:var(--ink)}
+.rail button[aria-current="step"] .n{background:var(--accent);color:var(--accent-ink)}
+.rail .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:560px){.rail .t{display:none}.rail button[aria-current="step"] .t{display:block}.rail li:has(button[aria-current="step"]){flex:3}}
+section{display:flex;flex-direction:column;gap:18px;padding-bottom:40px}
+section h2:focus{outline:none}
+.lede{color:var(--muted);max-width:62ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-weight:600;border-radius:10px;padding:11px 18px;cursor:pointer;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.sm{padding:7px 12px;font-size:.88rem}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+fieldset{border:0;padding:0;margin:0;min-width:0}
+legend{font-weight:600;padding:0;margin-bottom:6px}
+.hint{font-size:.88rem;color:var(--muted)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;min-width:0}
+.opt input{margin-top:4px;accent-color:var(--accent)}
+.opts.col{flex-direction:column}
+select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;max-width:100%}
+.sample{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px;border:1px dashed var(--accent);border-radius:12px;background:var(--accent-soft)}
+.err{color:var(--crit);background:var(--crit-bg);padding:10px 12px;border-radius:10px;font-weight:500}
+.notice{padding:12px 14px;border-radius:10px;background:var(--warn-bg);color:var(--ink);border-left:4px solid var(--warn)}
+.alert{padding:18px;border-radius:12px;background:var(--crit-bg);border:2px solid var(--crit)}
+.alert h3{color:var(--crit);margin-bottom:6px}
+.chip{display:inline-block;font-size:.76rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.chip.discuss{background:var(--accent);color:var(--accent-ink)}
+.chip.ask{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn)}
+.chip.none{background:var(--idle-bg);color:var(--muted)}
+.audit{display:flex;flex-direction:column;gap:10px}
+.audit .item{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:start;border-left:5px solid var(--line);background:var(--surface);border-radius:0 12px 12px 0;padding:12px 14px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.audit .item.discuss{border-left-color:var(--accent)}
+.audit .item.ask{border-left-color:var(--warn)}
+.audit .rule{grid-column:1/-1;font-size:.82rem;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.audit .why{grid-column:1/-1;font-size:.95rem}
+details{border-top:1px solid var(--line);padding-block:10px}
+details:first-of-type{margin-top:6px}
+summary{cursor:pointer;font-weight:600}
+details p,details ul{margin-top:8px;font-size:.95rem}
+ul.plain{margin:8px 0 0;padding-left:20px}
+.src a{display:block}
+.qa{display:flex;gap:8px;flex-wrap:wrap}
+.qa input{flex:1 1 220px;min-width:0;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.answer{padding:12px 14px;border-radius:10px;background:var(--accent-soft);min-height:1em}
+.check{display:flex;gap:10px;align-items:flex-start;padding:6px 0}
+.check input{margin-top:5px;width:18px;height:18px;accent-color:var(--accent);flex:none}
+.check input:checked + span{text-decoration:line-through;color:var(--muted)}
+textarea.fallback{width:100%;min-height:160px;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){section{animation:in .25s ease-out}@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="12" fill="none" stroke="var(--accent)" stroke-width="3"/><circle cx="15" cy="15" r="4.5" fill="var(--accent)"/></svg>
+      SwasthyaAI
+    </div>
+    <span class="pill">Prototype · synthetic data only</span>
+  </header>
+  <div class="safety"><div><b>This is a screening discussion guide, not a diagnosis.</b> In an emergency, stop and call your local emergency number (India 112, UAE 998 for an ambulance). Do not enter real names, contact details or medical records.</div></div>
+  <nav aria-label="Progress"><ol class="rail" id="rail"></ol></nav>
+
+  <main>
+    <!-- 1 Consent -->
+    <section id="s1" data-step="1">
+      <h2 tabindex="-1">Before you start</h2>
+      <p class="lede">SwasthyaAI helps you understand which preventive screenings you could talk about with a health professional, and what to do next. It runs in guest mode. Nothing you enter is saved or sent anywhere.</p>
+      <div class="card stack">
+        <h3>What it does</h3>
+        <ul class="plain">
+          <li>Asks a few questions: age band, sex, tobacco use, family history.</li>
+          <li>Applies simple, visible rules to suggest topics to discuss.</li>
+          <li>Explains each topic in plain language with its source and limits.</li>
+          <li>Gives you a follow-up checklist and questions for your clinician.</li>
+        </ul>
+        <h3>What it does not do</h3>
+        <ul class="plain">
+          <li>It does not diagnose, treat, triage emergencies or replace a clinician.</li>
+          <li>Its rules are demo placeholders. Local clinicians must approve them before any real use.</li>
+        </ul>
+      </div>
+      <label class="opt"><input type="checkbox" id="consent"><span>I understand this is a prototype. I will use only the fictional sample profile or made-up answers, and I will not rely on it for medical decisions.</span></label>
+      <div class="row"><button class="btn" id="go2" disabled>Continue as guest</button></div>
+    </section>
+
+    <!-- 2 Intake -->
+    <section id="s2" data-step="2" hidden>
+      <h2 tabindex="-1">A few questions</h2>
+      <p class="lede">Choose a fictional sample or answer with made-up details. Only an age band is asked, never a date of birth.</p>
+      <div class="sample" role="group" aria-label="Fictional sample profiles">
+        <b>Fictional samples:</b>
+        <button type="button" class="btn ghost sm" data-sample="A">Sample A · woman, 40–49</button>
+        <button type="button" class="btn ghost sm" data-sample="B">Sample B · man, 50–59</button>
+      </div>
+      <form id="intake" class="stack" novalidate>
+        <div class="card stack">
+          <div><label for="age" style="font-weight:600">Age band</label><br>
+            <select id="age" name="age"><option value="">Select…</option><option>18-29</option><option>30-39</option><option>40-49</option><option>50-59</option><option>60-69</option><option>70+</option></select></div>
+          <fieldset><legend>Sex</legend>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="sex" value="female"><span>Female</span></label>
+              <label class="opt"><input type="radio" name="sex" value="male"><span>Male</span></label>
+              <label class="opt"><input type="radio" name="sex" value="other"><span>Another description / prefer not to say</span></label>
+            </div>
+            <p class="hint" style="margin-top:6px">Some screening depends on anatomy, so this is asked only where it matters.</p>
+          </fieldset>
+          <fieldset><legend>Tobacco (smoked or smokeless)</legend>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="tobacco" value="never"><span>Never</span></label>
+              <label class="opt"><input type="radio" name="tobacco" value="former"><span>Used in the past</span></label>
+              <label class="opt"><input type="radio" name="tobacco" value="current"><span>Use now</span></label>
+            </div>
+          </fieldset>
+          <fieldset><legend>Close family history (parents, brothers, sisters)</legend>
+            <div class="opts">
+              <label class="opt"><input type="checkbox" name="family" value="breast"><span>Breast or ovarian cancer</span></label>
+              <label class="opt"><input type="checkbox" name="family" value="colorectal"><span>Bowel cancer</span></label>
+              <label class="opt"><input type="checkbox" name="family" value="diabetes"><span>Diabetes</span></label>
+              <label class="opt"><input type="checkbox" name="family" value="heart"><span>Early heart disease or stroke</span></label>
+            </div>
+          </fieldset>
+          <div><label for="last" style="font-weight:600">Last general health check-up</label><br>
+            <select id="last" name="last"><option value="">Select…</option><option value="1">Within the last year</option><option value="1-3">1 to 3 years ago</option><option value="3+">More than 3 years ago</option><option value="never">Never</option><option value="unsure">Not sure</option></select></div>
+        </div>
+        <div class="card stack">
+          <fieldset><legend>Right now</legend>
+            <div class="opts col">
+              <label class="opt"><input type="radio" name="symptoms" value="none"><span>No symptoms I am worried about</span></label>
+              <label class="opt"><input type="radio" name="symptoms" value="new"><span>A new or lasting symptom worries me (for example a lump, unexplained weight loss, blood in stool or urine, a sore that will not heal)</span></label>
+              <label class="opt"><input type="radio" name="symptoms" value="urgent"><span>I need urgent help (chest pain, trouble breathing, heavy bleeding, sudden weakness, thoughts of harming myself)</span></label>
+            </div>
+          </fieldset>
+          <label class="opt"><input type="checkbox" name="reminders" value="1"><span>I would like follow-up reminders. <span class="hint">Demo only: nothing is stored or sent.</span></span></label>
+        </div>
+        <div class="err" id="formerr" role="alert" hidden></div>
+        <div class="row"><button class="btn ghost" type="button" data-back="1">Back</button><button class="btn" type="submit">Apply screening rules</button></div>
+      </form>
+    </section>
+
+    <!-- 3 Rules -->
+    <section id="s3" data-step="3" hidden>
+      <h2 tabindex="-1">Which rules matched</h2>
+      <div id="s3body" class="stack"></div>
+    </section>
+
+    <!-- 4 Explanation -->
+    <section id="s4" data-step="4" hidden>
+      <h2 tabindex="-1">Plain-language guide</h2>
+      <div id="s4body" class="stack"></div>
+    </section>
+
+    <!-- 5 Follow-up -->
+    <section id="s5" data-step="5" hidden>
+      <h2 tabindex="-1">Your follow-up</h2>
+      <div id="s5body" class="stack"></div>
+    </section>
+  </main>
+
+  <footer>Prototype status: concept-to-interactive-demo. Not clinically validated and not deployed for patient care. Prepared for the Future Health Digital Innovation Challenge 2026 · SwasthyaAI.</footer>
+</div>
+
+<script>
+(function(){
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+
+var SOURCES={
+  who:{label:'WHO Regional Office for Europe (2020), Screening programmes: a short guide',url:'https://www.who.int/publications/i/item/9789289054782'},
+  obs:{label:'WHO / European Observatory (2020), Screening: when is it appropriate and how can we get it right?',url:'https://eurohealthobservatory.who.int'},
+  nsc:{label:'UK National Screening Committee, Principles of screening',url:'https://www.gov.uk/guidance/principles-of-population-screening'}
+};
+var SOURCE_NOTE='These sources support the design principles only: informed choice, weighing benefits against harms, and follow-up. They do not set the age or risk thresholds used in this demo rule, and they do not validate this prototype.';
+
+var BANDS={'18-29':[18,29],'30-39':[30,39],'40-49':[40,49],'50-59':[50,59],'60-69':[60,69],'70+':[70,120]};
+function rel(p,lo,hi){var b=BANDS[p.age];if(b[0]>=lo&&b[1]<=hi)return 'in';if(b[1]<lo||b[0]>hi)return 'out';return 'partial';}
+
+var RULES=[
+ {id:'R1',name:'Blood pressure check',threshold:'Demo rule: adults 18 and over',src:['who','nsc'],
+  plain:'A quick measurement that shows whether your blood pressure is higher than recommended. High blood pressure often causes no symptoms, so it is usually found only by measuring.',
+  limits:'One reading does not diagnose high blood pressure. A clinician decides whether repeat readings are needed.',
+  q:['When was my blood pressure last measured, and when is the next check due?','Do my family history or daily habits change how often I should be checked?'],
+  todo:'Book or confirm a blood pressure check',
+  ev:function(p,f){return ['discuss',f.has('heart')?'You are an adult and you noted early heart disease or stroke in your family, so it is worth raising.':'You are an adult. This check is relevant at any adult age in this demo.'];}},
+ {id:'R2',name:'Blood sugar test (diabetes)',threshold:'Demo rule: age 30+, or family history of diabetes',src:['who','nsc'],
+  plain:'A blood test that shows how much sugar is in your blood. It can find raised blood sugar before symptoms appear.',
+  limits:'A single result needs a clinician to interpret it. This tool cannot interpret test results.',
+  q:['Which blood sugar test is used here, and do I need to fast?','How often should I repeat it?'],
+  todo:'Ask about a blood sugar test',
+  ev:function(p,f){if(rel(p,30,200)==='in')return ['discuss','Your age band is 30 or over (demo threshold).'];if(f.has('diabetes'))return ['discuss','You noted diabetes in your close family.'];return ['none','Below the demo age threshold of 30, and no family history of diabetes entered.'];}},
+ {id:'R3',name:'Cholesterol test',threshold:'Demo rule: age 40+, or family history of early heart disease or stroke',src:['who','nsc'],
+  plain:'A blood test that measures cholesterol and related fats. It is one input to understanding heart and stroke risk.',
+  limits:'Cholesterol is only one part of cardiovascular risk. A clinician weighs it together with other factors.',
+  q:['Is a cholesterol test recommended for me now?','Which other factors would you look at together with the result?'],
+  todo:'Ask whether a cholesterol test is due',
+  ev:function(p,f){if(rel(p,40,200)==='in')return ['discuss','Your age band is 40 or over (demo threshold).'];if(f.has('heart'))return ['discuss','You noted early heart disease or stroke in your close family.'];return ['none','Below the demo age threshold of 40, and no family history of early heart disease or stroke entered.'];}},
+ {id:'R4',name:'Cervical screening',threshold:'Demo rule: female, age 30 to 65. Other sex entry: ask a clinician',src:['who','obs','nsc'],
+  plain:'Cervical screening looks for early changes in the cervix, or for the HPV virus that can cause them, before any symptoms appear.',
+  limits:'A positive result is not a cancer diagnosis. It leads to further tests. Screening can also give false alarms or false reassurance.',
+  q:['Which cervical screening test is offered locally, and how often?','What happens if my result is abnormal?','Where is the nearest clinic that offers it?'],
+  todo:'Ask where and how to book cervical screening',
+  ev:function(p,f){var r=rel(p,30,65);
+    if(p.sex==='female'){if(r==='in')return ['discuss','Female, and your age band is inside the demo range of 30 to 65.'];if(r==='partial')return ['ask','Your age band straddles the demo upper limit of 65. Ask a clinician whether it still applies to you.'];return ['none','Outside the demo age range of 30 to 65.'];}
+    if(p.sex==='other'){if(r!=='out')return ['ask','This depends on anatomy. Ask a clinician whether cervical screening applies to you.'];return ['none','Outside the demo age range of 30 to 65.'];}
+    return ['none','Not applicable for the sex entered. If that is wrong for you, ask a clinician.'];}},
+ {id:'R5',name:'Breast screening',threshold:'Demo rule: female, age 40+, or family history of breast or ovarian cancer',src:['who','obs','nsc'],
+  plain:'Breast screening aims to find breast cancer early. The method and the starting age depend on the local programme.',
+  limits:'Screening can miss cancers, and it can lead to extra tests for findings that turn out harmless. A new lump or change needs a clinician visit now, not screening.',
+  q:['Which breast screening method is offered locally for someone like me?','What are the benefits and possible harms for me?','Does my family history change my plan?'],
+  todo:'Ask about breast screening options',
+  ev:function(p,f){var old=rel(p,40,200)==='in',fam=f.has('breast');
+    if(p.sex==='female'){if(old)return ['discuss','Female, and your age band is 40 or over (demo threshold).'];if(fam)return ['discuss','You noted breast or ovarian cancer in your close family. Ask whether an earlier assessment is appropriate.'];return ['none','Below the demo age threshold of 40, and no relevant family history entered.'];}
+    if(p.sex==='other'){if(old||fam)return ['ask','This depends on anatomy and family history. Ask a clinician whether breast screening applies to you.'];return ['none','Below the demo age threshold, and no relevant family history entered.'];}
+    return ['none','Not matched for the sex entered. If that is wrong for you, ask a clinician.'];}},
+ {id:'R6',name:'Bowel screening',threshold:'Demo rule: age 50+, or family history of bowel cancer',src:['who','obs','nsc'],
+  plain:'Bowel screening looks for hidden blood in stool, or for growths in the bowel that could become cancer later.',
+  limits:'Tests differ in what they detect and how often they are repeated. A positive result leads to follow-up tests and is not a diagnosis.',
+  q:['Which bowel screening test is offered here?','How is it done, and how do I get the kit or an appointment?','What follow-up happens after a positive result?'],
+  todo:'Ask which bowel screening test is offered',
+  ev:function(p,f){if(rel(p,50,200)==='in')return ['discuss','Your age band is 50 or over (demo threshold).'];if(f.has('colorectal'))return ['discuss','You noted bowel cancer in your close family. Ask whether an earlier assessment is appropriate.'];return ['none','Below the demo age threshold of 50, and no family history of bowel cancer entered.'];}},
+ {id:'R7',name:'Oral (mouth) check',threshold:'Demo rule: tobacco use now or in the past, age 30+',src:['who','nsc'],
+  plain:'A visual check of the mouth for early warning changes. It matters most for people who use or have used tobacco.',
+  limits:'A visual check cannot diagnose. Suspicious areas need a clinician. Mouth ulcers, patches or lumps that do not go away need a visit now.',
+  q:['Can you check my mouth at this visit?','What help is available if I want to stop using tobacco?'],
+  todo:'Ask for an oral (mouth) check',
+  ev:function(p,f){if(p.tobacco==='never')return ['none','No tobacco use entered.'];if(rel(p,30,200)==='in')return ['discuss','You use or have used tobacco, and your age band is 30 or over (demo threshold).'];return ['none','Below the demo age threshold of 30.'];}}
+];
+
+var SAMPLES={
+  A:{age:'40-49',sex:'female',tobacco:'never',family:['diabetes'],last:'3+',symptoms:'none',reminders:true},
+  B:{age:'50-59',sex:'male',tobacco:'former',family:['heart','colorectal'],last:'1-3',symptoms:'none',reminders:false}
+};
+var LAST_TXT={'1':'within the last year','1-3':'1 to 3 years ago','3+':'more than 3 years ago','never':'never','unsure':'not sure'};
+var STATUS_TXT={discuss:'Discuss',ask:'Ask a clinician',none:'Not matched'};
+var STEP_NAMES=['Consent','Intake','Rules','Explanation','Follow-up'];
+
+var state={step:1,max:1,p:null,results:[],done:{}};
+
+/* ---------- rail ---------- */
+function drawRail(){
+  var rail=$('#rail');rail.innerHTML='';
+  STEP_NAMES.forEach(function(nm,i){
+    var n=i+1,li=document.createElement('li'),b=document.createElement('button');
+    b.type='button';b.innerHTML='<span class="n">'+n+'</span><span class="t">'+nm+'</span>';
+    if(n===state.step)b.setAttribute('aria-current','step');
+    if(n>state.max)b.disabled=true;
+    b.addEventListener('click',function(){go(n);});
+    li.appendChild(b);rail.appendChild(li);
+  });
+}
+function go(n){
+  state.step=n;
+  $$('section[data-step]').forEach(function(s){s.hidden=(+s.dataset.step!==n);});
+  drawRail();
+  try{window.scrollTo(0,0);}catch(e){}
+  var h=$('#s'+n+' h2');if(h)h.focus();
+}
+
+/* ---------- 1 consent ---------- */
+$('#consent').addEventListener('change',function(e){$('#go2').disabled=!e.target.checked;});
+$('#go2').addEventListener('click',function(){state.max=Math.max(state.max,2);go(2);});
+$$('[data-back]').forEach(function(b){b.addEventListener('click',function(){go(+b.dataset.back);});});
+
+/* ---------- 2 intake ---------- */
+var form=$('#intake');
+function fillForm(p){
+  form.age.value=p.age;form.last.value=p.last;
+  $$('input[name=sex]',form).forEach(function(i){i.checked=(i.value===p.sex);});
+  $$('input[name=tobacco]',form).forEach(function(i){i.checked=(i.value===p.tobacco);});
+  $$('input[name=symptoms]',form).forEach(function(i){i.checked=(i.value===p.symptoms);});
+  $$('input[name=family]',form).forEach(function(i){i.checked=p.family.indexOf(i.value)>-1;});
+  $('input[name=reminders]',form).checked=!!p.reminders;
+  $('#formerr').hidden=true;
+}
+$$('[data-sample]').forEach(function(b){b.addEventListener('click',function(){fillForm(SAMPLES[b.dataset.sample]);});});
+
+function readForm(){
+  var v=function(n){var c=$('input[name='+n+']:checked',form);return c?c.value:'';};
+  return {age:form.age.value,sex:v('sex'),tobacco:v('tobacco'),last:form.last.value,symptoms:v('symptoms'),
+    family:$$('input[name=family]:checked',form).map(function(i){return i.value;}),
+    reminders:$('input[name=reminders]',form).checked};
+}
+form.addEventListener('submit',function(e){
+  e.preventDefault();
+  var p=readForm(),miss=[];
+  if(!p.age)miss.push('age band');if(!p.sex)miss.push('sex');if(!p.tobacco)miss.push('tobacco use');
+  if(!p.last)miss.push('last check-up');if(!p.symptoms)miss.push('how you are right now');
+  var err=$('#formerr');
+  if(miss.length){err.textContent='Please answer: '+miss.join(', ')+'.';err.hidden=false;return;}
+  err.hidden=true;state.p=p;state.done={};
+  var fam=new Set(p.family);
+  state.results=RULES.map(function(r){var o=r.ev(p,fam);return {rule:r,status:o[0],reason:o[1]};});
+  drawS3();
+  if(p.symptoms==='urgent'){state.max=3;}
+  else{drawS4();drawS5();state.max=5;}
+  go(3);
+});
+
+/* ---------- 3 rules + evidence ---------- */
+function backBtn(n){return '<button class="btn ghost" type="button" data-nav="'+n+'">Back</button>';}
+function drawS3(){
+  var p=state.p,el=$('#s3body'),html='';
+  if(p.symptoms==='urgent'){
+    html+='<div class="alert" role="alert"><h3>Please get urgent help now</h3><p>You said you need urgent help. This tool cannot assess emergencies. Stop here and call your local emergency number now: <b>India 112</b>, <b>UAE 998</b> (ambulance). If someone is with you, ask them to stay with you.</p></div>';
+    html+='<p class="hint">No screening guide has been produced, because screening is not the right tool for an urgent problem.</p>';
+    html+='<div class="row">'+backBtn(2)+'</div>';
+    el.innerHTML=html;wireNav(el);return;
+  }
+  var c={discuss:0,ask:0,none:0};state.results.forEach(function(r){c[r.status]++;});
+  html+='<p class="lede">Each rule below is applied to your answers in plain view. '+c.discuss+' to discuss, '+c.ask+' to ask a clinician about, '+c.none+' not matched.</p>';
+  html+='<div class="notice"><b>Demo rules.</b> Thresholds are placeholders. Local clinicians must review and approve eligibility logic and referral pathways before any real pilot. The AI does not decide who is eligible.</div>';
+  if(p.symptoms==='new')html+='<div class="alert"><h3>Please see a clinician about your symptom</h3><p>Screening is for people without symptoms. A new or lasting symptom should be checked by a health professional soon, rather than waiting for a screening appointment. If it gets worse quickly, seek urgent care.</p></div>';
+  html+='<div class="audit">';
+  state.results.forEach(function(r){
+    html+='<div class="item '+r.status+'"><h3>'+r.rule.name+'</h3><span class="chip '+r.status+'">'+STATUS_TXT[r.status]+'</span><div class="rule">'+r.rule.id+' · '+r.rule.threshold+'</div><div class="why">'+r.reason+'</div></div>';
+  });
+  html+='</div>';
+  html+='<div class="row">'+backBtn(2)+'<button class="btn" type="button" data-nav="4">See the plain-language guide</button></div>';
+  el.innerHTML=html;wireNav(el);
+}
+function wireNav(root){$$('[data-nav]',root).forEach(function(b){b.addEventListener('click',function(){go(+b.dataset.nav);});});}
+
+/* ---------- 4 AI explanation (templated from approved content) ---------- */
+function matched(){return state.results.filter(function(r){return r.status!=='none';});}
+function drawS4(){
+  var el=$('#s4body'),m=matched(),p=state.p,html='';
+  html+='<p class="lede">Your last general check-up was '+LAST_TXT[p.last]+'. These are topics to talk about, not instructions. In this prototype the wording comes from fixed, reviewable templates. In a pilot, a language model would only rephrase this approved text, and only with source links shown.</p>';
+  if(!m.length)html+='<div class="card">No topics matched in this demo. Ask a clinician which routine checks suit you.</div>';
+  m.forEach(function(r){
+    var rl=r.rule;
+    html+='<article class="card"><div class="row" style="justify-content:space-between"><h3>'+rl.name+'</h3><span class="chip '+r.status+'">'+STATUS_TXT[r.status]+'</span></div><p style="margin-top:8px">'+rl.plain+'</p>';
+    html+='<details><summary>Why this appears</summary><p>'+r.reason+' ('+rl.id+'; '+rl.threshold+'.)</p></details>';
+    html+='<details><summary>Limits of this guidance</summary><p>'+rl.limits+'</p></details>';
+    html+='<details class="src"><summary>Evidence source</summary><p>';
+    rl.src.forEach(function(k){html+='<a href="'+SOURCES[k].url+'" target="_blank" rel="noopener">'+SOURCES[k].label+'</a>';});
+    html+='</p><p class="hint">'+SOURCE_NOTE+'</p></details></article>';
+  });
+  html+='<div class="card stack"><h3>Ask about this guide</h3><p class="hint">Answers come only from the approved text above. If nothing approved covers your question, you will be told so.</p><form class="qa" id="qaform"><label for="qin" class="hint" style="flex:1 0 100%">Your question</label><input id="qin" type="text" autocomplete="off" placeholder="For example: what is cervical screening?"><button class="btn" type="submit">Ask</button></form><div class="answer" id="qans" aria-live="polite" hidden></div></div>';
+  html+='<div class="row">'+backBtn(3)+'<button class="btn" type="button" data-nav="5">Go to follow-up</button></div>';
+  el.innerHTML=html;wireNav(el);
+  $('#qaform').addEventListener('submit',function(e){e.preventDefault();ask($('#qin').value);});
+}
+var TOPIC_KEYS=[['R1',/blood pressure|\bbp\b|hypertension/],['R2',/sugar|diabet|glucose/],['R3',/cholesterol|lipid/],['R4',/cervic|hpv|pap\b|smear/],['R5',/breast|mammo/],['R6',/bowel|colon|colorectal|stool/],['R7',/oral|mouth|tobacco|tongue/]];
+function ask(q){
+  var out=$('#qans'),t=(q||'').toLowerCase().trim();out.hidden=false;
+  if(!t){out.textContent='Type a question first.';return;}
+  if(/chest pain|breath|bleeding|faint|suicid|harm myself|unconscious|stroke now/.test(t)){out.textContent='This sounds urgent. Stop using this tool and call your local emergency number now: India 112, UAE 998 (ambulance).';return;}
+  if(/diagnos|medicine|medication|dose|tablet|treat|prescri|result|report|do i have|cancer or not/.test(t)){out.textContent='I cannot diagnose, suggest treatment, or interpret test results. Please take this question to a clinician. It is already a good one for your question list.';return;}
+  for(var i=0;i<TOPIC_KEYS.length;i++){
+    if(TOPIC_KEYS[i][1].test(t)){
+      var r=state.results.filter(function(x){return x.rule.id===TOPIC_KEYS[i][0];})[0],rl=r.rule;
+      out.textContent=rl.plain+' Limits: '+rl.limits+' '+(r.status==='none'?'This did not match your answers in the demo rules, but a clinician can tell you whether it applies to you.':'It appears in your guide: '+r.reason);
+      return;
+    }
+  }
+  out.textContent='I do not have approved content on that, so I will not guess. Please ask a clinician or the clinic directly.';
+}
+
+/* ---------- 5 action + follow-up ---------- */
+function buildItems(){
+  var items=matched().map(function(r){return r.rule.todo;});
+  items.push('Bring a list of any medicines you take');
+  items.push('Write down your questions for the clinician');
+  items.push('Ask how and where to book, and what to do if you miss the appointment');
+  return items;
+}
+function buildQuestions(){
+  var out=[];matched().forEach(function(r){r.rule.q.forEach(function(q){out.push([r.rule.name,q]);});});
+  out.push(['General','Which of these are covered by my local programme, and which are not?']);
+  out.push(['General','Whom should I contact if I have questions after the visit?']);
+  return out;
+}
+function drawS5(){
+  var el=$('#s5body'),items=buildItems(),qs=buildQuestions(),html='';
+  html+='<p class="lede">Tick items off as you go. In this demo nothing is saved, so copy the list if you want to keep it.</p>';
+  html+='<div class="card"><h3>Follow-up checklist</h3><div id="chk">';
+  items.forEach(function(t,i){html+='<label class="check"><input type="checkbox" data-i="'+i+'"><span>'+t+'</span></label>';});
+  html+='</div></div>';
+  html+='<div class="card"><h3>Questions to ask a clinician</h3><ul class="plain">';
+  var last='';qs.forEach(function(x){html+='<li><span class="hint">'+x[0]+':</span> '+x[1]+'</li>';});
+  html+='</ul></div>';
+  html+='<div class="card stack"><h3>Reminders</h3><label class="opt"><input type="checkbox" id="rem"'+(state.p.reminders?' checked':'')+'><span>Remind me to follow up</span></label><p class="hint" id="remnote"></p></div>';
+  html+='<div class="card stack"><h3>Keep this list</h3><div class="row"><button class="btn" type="button" id="copy">Copy checklist and questions</button><span class="hint" id="copied" aria-live="polite"></span></div><div id="fb" hidden><p class="hint">Copying is blocked here. Select and copy the text below.</p><textarea class="fallback" id="fbt" readonly></textarea></div></div>';
+  html+='<div class="row">'+backBtn(4)+'<button class="btn ghost" type="button" id="reset">Start over and clear everything</button></div>';
+  el.innerHTML=html;wireNav(el);
+  function remNote(){$('#remnote').textContent=$('#rem').checked?'Preference noted for this session only. In a pilot, reminders would need your explicit consent and a clinic-approved channel.':'Reminders are off.';}
+  $('#rem').addEventListener('change',function(){state.p.reminders=this.checked;remNote();});remNote();
+  $('#copy').addEventListener('click',copyList);
+  $('#reset').addEventListener('click',reset);
+}
+function listText(){
+  var t='SwasthyaAI demo: screening discussion guide\n(Prototype with fictional data. Not medical advice or a diagnosis.)\n\nFollow-up checklist\n';
+  buildItems().forEach(function(i){t+='[ ] '+i+'\n';});
+  t+='\nQuestions for my clinician\n';
+  buildQuestions().forEach(function(x){t+='- ('+x[0]+') '+x[1]+'\n';});
+  return t;
+}
+function copyList(){
+  var text=listText(),note=$('#copied');
+  function fallback(){var fb=$('#fb'),ta=$('#fbt');ta.value=text;fb.hidden=false;ta.focus();ta.select();}
+  try{
+    navigator.clipboard.writeText(text).then(function(){note.textContent='Copied.';},fallback);
+  }catch(e){fallback();}
+}
+function reset(){
+  form.reset();state={step:1,max:1,p:null,results:[],done:{}};
+  $('#consent').checked=false;$('#go2').disabled=true;$('#formerr').hidden=true;
+  $('#s3body').innerHTML='';$('#s4body').innerHTML='';$('#s5body').innerHTML='';
+  go(1);
+}
+
+drawRail();
+})();
+</script>
+
+</body></html>
